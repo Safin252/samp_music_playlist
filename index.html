@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Music List</title>
+
+<style>
+@font-face { font-family: 'Fonth'; src: url('fonth.ttf') format('truetype'); }
+@font-face { font-family: 'Fontb'; src: url('fontb.ttf') format('truetype'); }
+
+body {
+  font-family: 'Fontb', sans-serif;
+  background: url('bg.jpeg') no-repeat center center fixed;
+  background-size: cover; 
+  margin: 0; padding: 0;
+  display: flex; justify-content: center; align-items: flex-start;
+  height: 100vh; overflow-y: auto;
+}
+
+body::before {
+  content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  backdrop-filter: blur(10px); background: rgba(0, 0, 0, 0.1); z-index: -1;
+}
+
+.container {
+  background: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6);
+  border-radius: 35px; width: 100%; max-width: 600px;
+  padding: 7px; margin: 10px;
+  backdrop-filter: blur(10px); border: 4px solid rgba(255, 255, 255, 0.7);
+}
+
+h1 {
+  font-family: 'Fonth', sans-serif; font-size: 2rem; color: white;
+  text-align: center; margin-bottom: 20px;
+  text-shadow: 2px 2px 4px rgba(100,60, 0, 0.5);
+}
+
+.title-svg {
+  width: 100%;
+  height: 70px; 
+}
+
+.title-svg text {
+  font-family: 'Fonth', sans-serif;
+  font-size: 100px;
+  font-weight: bold;
+  text-shadow: 3px 3px 5px rgba(0, 0, 0, 0.5);
+  stroke: #ffa5d8;
+  stroke-width: 7;
+  letter-spacing: 5px;
+  animation: textAnimate 4s infinite alternate;
+}
+
+@keyframes textAnimate {
+  0% {
+    stroke-dasharray: 0 50%;
+    stroke-dashoffset: 20%;
+    fill: hsl(57, 0%, 100%); /* Blue-green */
+    stroke: #000000; /* Pink */
+  }
+  100% {
+    stroke-dasharray: 50% 0;
+    stroke-dashoffset: -20%;
+    fill: hsla(57, 0%, 100%, 0%); /* Transparent */
+    stroke: #4f0c07; /* Keep stroke pink */
+  }
+}
+
+.music-list {
+  list-style: none;
+  padding: 0;
+  max-height: 400px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.5) transparent;
+}
+
+/* Customize Scrollbar for Webkit Browsers */
+.music-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.music-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 10px;
+}
+
+.music-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255, 255, 255, .43);
+  margin-bottom: 10px;
+  padding: 12px 15px;
+  border-radius: 13px;
+  transition: background 0.3s, transform 0.2s ease-in-out, box-shadow 0.2s;
+  backdrop-filter: blur(10px);
+}
+
+.music-item:hover {
+  background: rgba(255, 255, 255, 0.9);
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(255, 255, 255, 0.2);
+}
+
+.music-item a {
+  text-decoration: none;
+  font-size: 1.1rem;
+  color: black;
+  font-weight: 300;
+  transition: color 0.3s;
+}
+
+.music-item a:hover {
+  color: #ffcc00;
+}
+
+.copy-btn {
+  font-family: 'Fontb', sans-serif;
+  padding: 10px 18px;
+  font-size: 0.9rem;
+  color: white;
+  background: linear-gradient(135deg, #00E676, #00897B);
+  border: solid 1px;
+  border-radius: 9px;
+  cursor: pointer;
+  transition: background .5s ease-in-out, transform 0.2s ease-in-out;
+  box-shadow: 0 3px 10px rgba(0, 200, 83, 0.3);
+}
+
+.copy-btn:hover {
+  background: linear-gradient(135deg, #00C853, #00796B);
+  transform: scale(1.05);
+  box-shadow: 0 5px 15px rgba(0, 230, 118, 0.4);
+}
+.copy-btn {
+  outline: none; /* Removes focus outline */
+  border: none; /* Removes visible border */
+}
+.copy-btn:focus {
+  outline: none; /* Ensures no focus outline appears */
+  box-shadow: none; /* Prevents unwanted glow effects */
+}
+
+.copy-btn:active {
+  background: linear-gradient(135deg, #00897B, #00E676);
+  transform: scale(0.95);
+}
+
+.alert {
+  font-family: 'Fontb', sans-serif;
+  position: fixed;
+  top: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(212, 207,209, .1);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(10px);
+  color: black;
+  padding: 10px;
+  border: 2px solid rgba(255, 255, 255, 1);
+  border-radius: 30px;
+  font-size: 1.4rem;
+  text-align: center;
+  min-width: 200px;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+}
+
+@keyframes fadeInOut {
+  0% { opacity: 0; transform: translate(-50%, -20px); }
+  20% { opacity: 1; transform: translate(-50%, 0); }
+  80% { opacity: 1; transform: translate(-50%, 0); }
+  100% { opacity: 0; transform: translate(-50%, -20px); }
+}
+
+.alert.show {
+  opacity: 1;
+  visibility: visible;
+  animation: fadeInOut 2s ease-in-out;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <svg class="title-svg" viewBox="0 0 1000 250">
+  <text x="50" y="60%" font-size="90" 
+        fill="hsl(189, 68%, 60%)" stroke="#ff69b4" stroke-width="7" 
+        font-weight="bold">
+    SAMP MUSIC LIST
+  </text>
+</svg>
+  <ul class="music-list" id="musicList"></ul>
+</div>
+
+<div class="alert" id="alertBox">Boombox link Copied!</div>
+
+<script>
+const musicData = [
+{ name: "ekaki mon", link: "http://safinsplaylist.web.app/akaki_mon.mp3" },
+      { name: "chaina meye", link: "http://safinsplaylist.web.app/Chaina Meye_Hridoy_Khan.mp3" },
+      { name: "Afrobeat<br>instrumental", link: "http://safinsplaylist.web.app/Afrobeat_instrumental.mp3" },
+      { name: "I'm Albatraoz", link: "http://safinsplaylist.web.app/Im_Albatraoz.mp3" },
+      { name: "mojo lady", link: "http://safinsplaylist.web.app/mojo_lady.mp3" },
+      { name: "matir roud", link: "http://safinsplaylist.web.app/Matir_roud.mp3" },
+      { name: "rickroll", link: "http://safinsplaylist.web.app/rickroll.mp3" },
+      { name: "Asphalt Legend", link: "http://safinsplaylist.web.app/asphaltlegend.mp3" },
+      { name: "A thousand year", link: "http://safinsplaylist.web.app/aty.mp3" },
+      { name: "See you again", link: "http://safinsplaylist.web.app/sya.mp3" },
+      { name: "Alan_walker Alone", link: "http://safinsplaylist.web.app/Alone.mp3" },
+      { name: "TrevorDaniel_Falling", link: "http://safinsplaylist.web.app/falling.mp3" },
+      { name: "Bones-Breaking_bad", link: "http://safinsplaylist.web.app/bones.mp3" },
+      { name: "sweet but psycho", link: "http://safinsplaylist.web.app/sbs.mp3" },
+      { name: "Lily Alan_walker", link: "http://safinsplaylist.web.app/lily.mp3" },
+      { name: "ButterCup", link: "http://safinsplaylist.web.app/bc.mp3" },
+      { name: "Ashe_Moral of the story", link: "http://safinsplaylist.web.app/mos.mp3" },
+      { name: "Fein!", link: "http://safinsplaylist.web.app/fin.mp3" },
+      { name: "Hush little baby", link: "http://safinsplaylist.web.app/hlb.mp3" },
+      { name: "Gtasa cj rap", link: "http://safinsplaylist.web.app/cj.mp3" },
+      { name: "What it is-Doechii", link: "http://safinsplaylist.web.app/wiis.mp3" },
+      { name: "Senorita", link: "http://safinsplaylist.web.app/senorita.mp3" },
+      { name: "SofiaReyes_123", link: "http://safinsplaylist.web.app/SofiaReyes123.mp3" },
+      { name: "cruel summer", link: "http://safinsplaylist.web.app/cs.mp3" },
+      { name: "Heat waves", link: "http://safinsplaylist.web.app/hw.mp3" },
+      { name: "It's nice to meet you", link: "http://safinsplaylist.web.app/intmy.mp3" },
+      { name: "Believer", link: "http://safinsplaylist.web.app/believer.mp3" },
+      { name: "Sa_bounceFM", link: "http://safinsplaylist.web.app/bfm.mp3" },
+      { name: "Thunder", link: "http://safinsplaylist.web.app/t.mp3" },
+      { name: "The weekend", link: "http://safinsplaylist.web.app/weekend.mp3" },
+      { name: "Past Lives", link: "http://safinsplaylist.web.app/PastLives.mp3" },
+      { name: "MIA_paperplanes", link: "http://safinsplaylist.web.app/pp.mp3" },
+      { name: "luisfonsi_demiLovato", link: "http://safinsplaylist.web.app/dl.mp3" },
+      { name: "Metamorphosis", link: "http://safinsplaylist.web.app/mm.mp3" },
+      { name: "Summertime Sadness", link: "http://safinsplaylist.web.app/ss.mp3" },
+      { name: "Kaleo_WayDown", link: "http://safinsplaylist.web.app/kwd.mp3" },
+      { name: "Alanwalker_On_my_way", link: "http://safinsplaylist.web.app/omy.mp3" },
+      { name: "Tomar itihash", link: "http://safinsplaylist.web.app/Tomar_Itihash.mp3" },
+      { name: "icche ghuri", link: "http://safinsplaylist.web.app/Icche_Ghuri.mp3" },
+      { name: "golokdhadha", link: "http://safinsplaylist.web.app/golokdhadha.mp3" },
+      { name: "Bhrom", link: "http://safinsplaylist.web.app/Bhrom.mp3" },
+      { name: "apt", link: "http://safinsplaylist.web.app/apt.mp3" },
+      { name: "The Box by roddy", link: "http://safinsplaylist.web.app/The_box.mp3" },
+      { name: "On_The_Floor", link: "http://safinsplaylist.web.app/onthefloor.mp3" },
+      { name: "Mingle game song", link: "http://safinsplaylist.web.app/minglegmround.mp3" },
+      { name: "pawri_ho_rhi_hay", link: "http://safinsplaylist.web.app/pawri.mp3" },
+      { name: "shape of u", link: "http://safinsplaylist.web.app/shapeofu.mp3" },
+      { name: "Mustard Ballin", link: "http://safinsplaylist.web.app/MustardBallin.mp3" },
+      { name: "BAL_Nouka_Song", link: "http://safinsplaylist.web.app/nouka.mp3" },
+   { name: "Taheri song", link: "http://safinsplaylist.web.app/ts.mp3" },
+   { name: "1am", link: "http://safinsplaylist.web.app/1am.mp3" },
+{ name: "ACIDO-2", link: "http://safinsplaylist.web.app/ACIDO-2.mp3" },
+{ name: "Breathe", link: "http://safinsplaylist.web.app/Breathe.mp3" },
+{ name: "FloyyMenor-Peligrosa", link: "http://safinsplaylist.web.app/FloyyMenor-Peligrosa.mp3" },
+{ name: "IVANN-Afro-Tropical", link: "http://safinsplaylist.web.app/IVANN-Afro-Tropical.mp3" },
+{ name: "No-Wind-Resistance", link: "http://safinsplaylist.web.app/Kinneret-NoWindResistance.mp3" },
+{ name: "Lil-Wayne-SheWill", link: "http://safinsplaylist.web.app/Lil-Wayne-SheWill.mp3" },
+{ name: "Lil_Uzi_Vert<br>XO-TourLlif3", link: "http://safinsplaylist.web.app/Lil_Uzi_Vert-XO-TourLlif3.mp3" },
+{ name: "MetroBoomin<br>AmIDreaming", link: "http://safinsplaylist.web.app/MetroBoomin_AmIDreaming.mp3" },
+{ name: "Rio-IWannaParty", link: "http://safinsplaylist.web.app/RioHotWings-IWannaParty.mp3" },
+{ name: "victim-to-my-brain", link: "http://safinsplaylist.web.app/victim-to-my-brain.mp3" },
+{ name: "Swimming-Pools", link: "http://safinsplaylist.web.app/Kendrick-Lamar_SwimmingPools.mp3" },
+{ name: "Humble_Lummer", link: "http://safinsplaylist.web.app/Kendrick_Lamar-HUMBLE.mp3" },
+];
+
+function displayMusicList() {
+  document.getElementById('musicList').innerHTML = musicData.map(m => 
+    `<li class="music-item">
+      <a href="${m.link}" target="_blank">${m.name}</a>
+      <button class="copy-btn" onclick="copyToClipboard('${m.link}')">Copy Link</button>
+    </li>`).join('');
+}
+
+function copyToClipboard(link) {
+  navigator.clipboard.writeText(link);
+  document.getElementById('alertBox').classList.add('show');
+  setTimeout(() => document.getElementById('alertBox').classList.remove('show'), 2000);
+}
+
+document.addEventListener("DOMContentLoaded", displayMusicList);
+</script>
+
+</body>
+</html>
